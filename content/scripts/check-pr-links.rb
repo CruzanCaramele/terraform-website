@@ -3,7 +3,9 @@
 require 'nokogiri'
 require 'open-uri'
 
-# git diff --name-only --diff-filter=AMRCT $(git merge-base HEAD upstream/master)..HEAD | bundle exec tester.rb
+# Takes a list of source files to check, piped to STDIN.
+# from content directory:
+# git diff --name-only --diff-filter=AMRCT $(git merge-base HEAD upstream/master)..HEAD | bundle exec ./scripts/check-pr-links.rb
 
 # content/source/ for terraform-website, website/ for terraform
 site_root_paths = %r[^(content/source/|website/)]
