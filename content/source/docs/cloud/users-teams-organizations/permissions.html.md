@@ -58,7 +58,7 @@ If documentation or UI text states that an action requires a specific permission
 
 ### General Workspace Permissions
 
-[General Workspace Permissions]: #general-workspace-permissions
+[General Workspace Permissions]: #general-warkspace-permissions
 
 The following workspace permissions can be granted to teams on a per-workspace basis. They can be granted via either fixed permission sets or custom workspace permissions.
 
