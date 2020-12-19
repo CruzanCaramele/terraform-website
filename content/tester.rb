@@ -1,9 +1,94 @@
+#!/usr/bin/env ruby
+
 require 'nokogiri'
 require 'open-uri'
 
-puts 'hi'
-doc = Nokogiri::HTML(open('http://localhost:4567/docs/cloud/migrate/index.html'))
+# git diff --name-only --diff-filter=AMRC $(git merge-base HEAD upstream/master)..HEAD | bundle exec tester.rb
 
-# interested in #docs-sidebar a and #inner a
+# content/source/ for terraform-website, website/ for terraform
+site_root_paths = %r[^(content/source/|website/)]
+# middleman mostly accepts any combination of those extensions
+page_extensions = /(\.(html|markdown|md))+$/
 
-puts doc.css('#docs-sidebar a', '#inner a')
+ARGF.set_encoding('utf-8')
+input = ARGF.read
+input_files = input.split("\n")
+input_files.reject! {|f| f !~ site_root_paths || f !~ page_extensions}
+
+puts "Checking URLs in the following pages:"
+input_files.each {|input_file|
+  puts "- #{input_file}"
+}
+
+errors = {}
+
+input_files.each {|input_file|
+  errors[input_file] = []
+  input_url = input_file.sub(site_root_paths, 'http://localhost:4567/').sub(page_extensions, '.html')
+
+  puts input_url
+
+  begin
+    page_html = open(input_url)
+  rescue
+    errors[input_file] << "Couldn't open page at all; something's extra-wrong."
+
+    puts 'extra-wrong'
+
+    next
+  end
+
+  page = Nokogiri::HTML(page_html)
+
+  links = page.css('#inner a').map {|a| a.attributes['href'].value}
+  links.each {|link|
+    link_url = URI.join(input_url, link) # Automatically handles relative vs. absolute vs. abs+protocol stuff
+
+    puts link_url
+
+    begin
+      link_html = open(link_url)
+
+      puts "link ok"
+    rescue
+      errors[input_file] << "Broken link: #{link} (resolved to #{link_url})"
+
+      puts "broken link"
+
+      next
+    end
+
+    if (link_url.fragment)
+      link_page = Nokogiri::HTML(link_html)
+
+      if ( link_page.css('#' + link_url.fragment).length == 0 )
+        errors[input_file] << "Missing anchor in destination: #{link} (resolved to #{link_url})"
+
+        puts "broken anchor"
+      else
+        puts "anchor ok"
+      end
+    else
+      puts "no anchor"
+    end
+
+
+  }
+}
+
+errors.reject! {|file, problems| problems.empty?}
+
+puts "\n\nResults:"
+
+if (errors.empty?)
+  puts "=== No broken links! ==="
+else
+  puts "=== Found broken links! ===\nFix before merging... or if they're not really broken, explain why.\n"
+  errors.each {|file, problems|
+    puts file
+    puts problems.map{|msg| "  - #{msg}"}.join("\n")
+    puts ""
+  }
+  exit 1
+end
+
