@@ -48,7 +48,7 @@ jobs:
       - run:
           name: check links in changed pages
           working_directory: content
-          command: git diff --name-only --diff-filter=AMRCT $(git merge-base HEAD upstream/master)..HEAD | bundle exec ./scripts/check-pr-links.rb
+          command: git diff --name-only --diff-filter=AMRCT $(git merge-base HEAD origin/master)..HEAD | bundle exec ./scripts/check-pr-links.rb
 
   website-build-and-upload:
     docker:
