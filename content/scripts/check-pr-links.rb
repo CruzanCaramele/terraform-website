@@ -52,7 +52,7 @@ input_files.each {|input_file|
     if (link_url.fragment)
       link_page = Nokogiri::HTML(link_html)
 
-      if ( link_page.css('#' + link_url.fragment).length == 0 )
+      if ( link_page.css('#' + link_url.fragment, "[name='#{link_url.fragment}']").length == 0 )
         errors[input_file] << "Missing anchor: #{link} (resolved to #{link_url})"
       end
     end
