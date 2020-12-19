@@ -3,7 +3,7 @@
 require 'nokogiri'
 require 'open-uri'
 
-# git diff --name-only --diff-filter=AMRC $(git merge-base HEAD upstream/master)..HEAD | bundle exec tester.rb
+# git diff --name-only --diff-filter=AMRCT $(git merge-base HEAD upstream/master)..HEAD | bundle exec tester.rb
 
 # content/source/ for terraform-website, website/ for terraform
 site_root_paths = %r[^(content/source/|website/)]
@@ -26,15 +26,10 @@ input_files.each {|input_file|
   errors[input_file] = []
   input_url = input_file.sub(site_root_paths, 'http://localhost:4567/').sub(page_extensions, '.html')
 
-  puts input_url
-
   begin
     page_html = open(input_url)
   rescue
     errors[input_file] << "Couldn't open page at all; something's extra-wrong."
-
-    puts 'extra-wrong'
-
     next
   end
 
@@ -44,17 +39,11 @@ input_files.each {|input_file|
   links.each {|link|
     link_url = URI.join(input_url, link) # Automatically handles relative vs. absolute vs. abs+protocol stuff
 
-    puts link_url
-
     begin
       link_html = open(link_url)
-
-      puts "link ok"
-    rescue
-      errors[input_file] << "Broken link: #{link} (resolved to #{link_url})"
-
-      puts "broken link"
-
+    rescue OpenURI::HTTPError => e
+      error_code = e.io.status.join(' ')
+      errors[input_file] << "Broken link: #{link} [#{error_code}] (resolved to #{link_url})"
       next
     end
 
@@ -62,14 +51,8 @@ input_files.each {|input_file|
       link_page = Nokogiri::HTML(link_html)
 
       if ( link_page.css('#' + link_url.fragment).length == 0 )
-        errors[input_file] << "Missing anchor in destination: #{link} (resolved to #{link_url})"
-
-        puts "broken anchor"
-      else
-        puts "anchor ok"
+        errors[input_file] << "Missing anchor: #{link} (resolved to #{link_url})"
       end
-    else
-      puts "no anchor"
     end
 
 
@@ -83,7 +66,7 @@ puts "\n\nResults:"
 if (errors.empty?)
   puts "=== No broken links! ==="
 else
-  puts "=== Found broken links! ===\nFix before merging... or if they're not really broken, explain why.\n"
+  puts "=== Found broken links! ===\nFix before merging... or if they're not really broken, explain why.\n\n"
   errors.each {|file, problems|
     puts file
     puts problems.map{|msg| "  - #{msg}"}.join("\n")
