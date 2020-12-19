@@ -105,12 +105,12 @@ Answer "yes," and Terraform will migrate your state.
 In Terraform Cloud's UI, make any settings changes necessary for your new workspace.
 
 - [Set the VCS repository](../workspaces/vcs.html#vcs-connection-and-repository). This is optional, but enables automatic Terraform runs on code changes and automatic plans on pull requests. For more information, see [The UI- and VCS-driven Run Workflow](../run/ui.html).
-- [Set values for variables](../workspaces/variablessss.html).
+- [Set values for variables](../workspaces/variables.html).
 - [Set team access permissions](../workspaces/access.html).
 
 ## Step 8: Queue a Run in the New Workspace
 
-Either run `terraform plan` on the CLI or navigate to the workspace in Terraform Cloud's UI and [queue a plan](../run/ui.html#manually-starting-runsssss). Examine the results.
+Either run `terraform plan` on the CLI or navigate to the workspace in Terraform Cloud's UI and [queue a plan](../run/ui.html#manually-starting-runs). Examine the results.
 
 If all went well, the plan should result in no changes or very small changes. Terraform Cloud can now take over all Terraform runs for this infrastructure.
 
@@ -120,3 +120,5 @@ If all went well, the plan should result in no changes or very small changes. Te
 
     In the case of a wrong state file, you can recover by fixing your local working directory and trying again. You'll need to re-set to the local backend, run `terraform init`, replace the state file with the correct one, change back to the `remote` backend, run `terraform init` again, and confirm that you want to replace the remote state with the current local state.
 - If the plan recognizes the existing resources but would make unexpected changes, check whether the designated VCS branch for the workspace is the same branch you've been running Terraform on; if not, update it. You can also check whether variables in the Terraform Cloud workspace have the correct values.
+
+(change that doesn't affect links)

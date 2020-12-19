@@ -58,7 +58,7 @@ If documentation or UI text states that an action requires a specific permission
 
 ### General Workspace Permissions
 
-[General Workspace Permissions]: #general-warkspace-permissions
+[General Workspace Permissions]: #general-workspace-permissions
 
 The following workspace permissions can be granted to teams on a per-workspace basis. They can be granted via either fixed permission sets or custom workspace permissions.
 
@@ -177,3 +177,5 @@ Since Terraform Cloud integrates with other systems, the permissions models of t
 - If you use Terraform Cloud's API to create a Slack bot for provisioning infrastructure, anyone able to issue commands to that Slack bot can implicitly act with that bot's permissions, regardless of their own membership and permissions in the Terraform Cloud organization.
 
 When integrating Terraform Cloud with other systems, you are responsible for understanding the effects on your organization's security. An integrated system is able to delegate any level of access that it has been granted, so carefully consider the conditions and events that will cause it to delegate that access.
+
+(change that doesn't affect links)
